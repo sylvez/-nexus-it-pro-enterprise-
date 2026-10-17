@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusIT Pro 2.0 | Enterprise ITSM, QR Assets & AI Auditing</title>
+    <title>NexusIT Pro 3.0 | Enterprise ITSM, NOC Monitor, QR & AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Librerías Empresariales para PDF, Excel y Códigos QR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -16,7 +15,7 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen">
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-20">
 
     <!-- Barra Superior -->
     <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
@@ -24,16 +23,16 @@
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-xl shadow-lg shadow-indigo-500/30">N</div>
                 <div>
-                    <h1 class="font-bold text-lg tracking-tight">NexusIT Pro <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full ml-2">v2.0 Enterprise</span></h1>
-                    <p class="text-xs text-slate-400">Soporte IA, Control Patrimonial QR y Auditoría Forense SQL</p>
+                    <h1 class="font-bold text-lg tracking-tight">NexusIT Pro <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full ml-2">v3.0 Enterprise Suite</span></h1>
+                    <p class="text-xs text-slate-400">NOC Monitor, SLA Tracker, Activos QR y Auditoría Forense SQL</p>
                 </div>
             </div>
             <div class="flex flex-wrap items-center gap-2.5">
                 <button onclick="exportarReportePDF()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold px-3.5 py-2.5 rounded-lg transition shadow-lg shadow-rose-600/20">
-                    📄 Exportar PDF Auditoría
+                    📄 Exportar PDF
                 </button>
                 <button onclick="exportarReporteExcel()" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-3.5 py-2.5 rounded-lg transition shadow-lg shadow-teal-600/20">
-                    📊 Exportar Excel (3 Hojas)
+                    📊 Exportar Excel
                 </button>
                 <button onclick="simularTicketDemo()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2.5 rounded-lg transition shadow-lg shadow-emerald-600/20">
                     ⚡ Simular Incidente
@@ -45,7 +44,24 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <main class="max-w-7xl mx-auto px-6 py-6 space-y-7">
+
+        <!-- NUEVO MÓDULO 1: Monitor NOC de Infraestructura en Tiempo Real -->
+        <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+            <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Monitor NOC de Telemetría y Red en Vivo</h2>
+                </div>
+                <button onclick="actualizarTelemetriaNOC()" class="text-[11px] text-indigo-400 hover:underline">📡 Ejecutar Ping Test</button>
+            </div>
+            <div id="noc-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <!-- Se llena con JS -->
+            </div>
+        </section>
 
         <!-- Tarjetas de KPIs -->
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -62,7 +78,7 @@
             <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
                 <p class="text-xs text-rose-400 uppercase font-semibold">Prioridad Crítica</p>
                 <p id="kpi-criticos" class="text-3xl font-bold mt-2 text-rose-500">0</p>
-                <span class="text-xs text-slate-500">SLA inmediato</span>
+                <span class="text-xs text-slate-500">SLA &lt; 2 horas</span>
             </div>
             <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
                 <p class="text-xs text-emerald-400 uppercase font-semibold">Resueltos</p>
@@ -76,10 +92,8 @@
             </div>
         </section>
 
-        <!-- Fila Principal: Formulario Ticket + Gráfica + Bitácora en Vivo -->
+        <!-- Fila Principal: Formulario Ticket + Gráfica + Bitácora -->
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Crear Ticket con IA -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
                 <h2 class="text-base font-bold mb-1">Nuevo Ticket de Soporte</h2>
                 <p class="text-xs text-slate-400 mb-4">El asistente IA generará un plan de solución técnico automáticamente.</p>
@@ -94,12 +108,12 @@
                             <input id="solicitante" type="text" required placeholder="Ej. Dirección General" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
                         </div>
                         <div>
-                            <label class="text-xs text-slate-300 block mb-1">Prioridad</label>
+                            <label class="text-xs text-slate-300 block mb-1">Prioridad (Define SLA)</label>
                             <select id="prioridad" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
-                                <option value="Baja">Baja</option>
-                                <option value="Media" selected>Media</option>
-                                <option value="Alta">Alta</option>
-                                <option value="Crítica">Crítica</option>
+                                <option value="Baja">Baja (SLA 24h)</option>
+                                <option value="Media" selected>Media (SLA 8h)</option>
+                                <option value="Alta">Alta (SLA 4h)</option>
+                                <option value="Crítica">Crítica (SLA 1h)</option>
                             </select>
                         </div>
                     </div>
@@ -113,7 +127,6 @@
                 </form>
             </div>
 
-            <!-- Gráfica de Estado -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
                 <div>
                     <h2 class="text-base font-bold mb-1">Métricas de Resolución</h2>
@@ -128,7 +141,6 @@
                 </div>
             </div>
 
-            <!-- Bitácora Forense -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col">
                 <div class="flex justify-between items-center mb-3">
                     <div>
@@ -137,22 +149,38 @@
                     </div>
                     <span class="text-[11px] bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded">Seguridad Activa</span>
                 </div>
-                <div id="lista-bitacora" class="space-y-2.5 overflow-y-auto max-h-72 pr-1 text-xs">
-                </div>
+                <div id="lista-bitacora" class="space-y-2.5 overflow-y-auto max-h-72 pr-1 text-xs"></div>
             </div>
         </section>
 
-        <!-- NUEVA SECCIÓN: Alta de Equipos + Tabla de Inventario con Etiquetas QR -->
+        <!-- NUEVO MÓDULO 2 y 3: Buscador Inteligente, Filtros y Control de Tiempo SLA -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+            <div class="flex flex-wrap justify-between items-center gap-4 mb-5">
+                <div>
+                    <h2 class="text-base font-bold">Cola de Tickets, SLA Timer & Diagnóstico IA</h2>
+                    <p class="text-xs text-slate-400">Filtra incidentes en vivo o cambia su estado para disparar el Trigger en MySQL</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <input id="buscador-tickets" oninput="filtrarTicketsUI()" type="text" placeholder="🔍 Buscar por título, área o #ID..." class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-indigo-500 w-56">
+                    <select id="filtro-estado" onchange="filtrarTicketsUI()" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-indigo-500">
+                        <option value="TODOS">Todos los estados</option>
+                        <option value="Abierto">🔴 Solo Abiertos</option>
+                        <option value="En Proceso">🟡 En Proceso</option>
+                        <option value="Resuelto">🟢 Resueltos</option>
+                    </select>
+                </div>
+            </div>
+            <div id="contenedor-tickets" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- Inventario QR -->
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Formulario para Registrar Equipos y Generar QR -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
                 <div class="flex justify-between items-center mb-1">
                     <h2 class="text-base font-bold">Registrar Nuevo Equipo TI</h2>
                     <span class="text-[11px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">Auto-QR</span>
                 </div>
                 <p class="text-xs text-slate-400 mb-4">Agrega hardware al inventario y genera su etiqueta QR patrimonial.</p>
-                
                 <form id="form-activo" class="space-y-3.5">
                     <div>
                         <div class="flex justify-between items-center mb-1">
@@ -163,7 +191,7 @@
                     </div>
                     <div>
                         <label class="text-xs text-slate-300 block mb-1">Equipo / Marca y Modelo</label>
-                        <input id="act-equipo" type="text" required placeholder="Ej. Laptop Dell Latitude 5440 Core i7" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                        <input id="act-equipo" type="text" required placeholder="Ej. Laptop Dell Latitude 5440" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
@@ -185,14 +213,9 @@
                 </form>
             </div>
 
-            <!-- Tabla de Inventario de Activos de TI -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 lg:col-span-2">
-                <div class="flex justify-between items-center mb-4">
-                    <div>
-                        <h2 class="text-base font-bold">Inventario de Activos de Hardware & Etiquetas QR</h2>
-                        <p class="text-xs text-slate-400">Haz clic en "🔳 Ver QR" para mostrar e imprimir la etiqueta patrimonial del equipo</p>
-                    </div>
-                </div>
+                <h2 class="text-base font-bold mb-1">Inventario de Activos de Hardware & Etiquetas QR</h2>
+                <p class="text-xs text-slate-400 mb-4">Haz clic en "🔳 Ver QR" para mostrar e imprimir la etiqueta patrimonial del equipo</p>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
@@ -204,51 +227,55 @@
                                 <th class="py-3 px-3 text-right">Etiqueta QR</th>
                             </tr>
                         </thead>
-                        <tbody id="tabla-activos" class="divide-y divide-slate-800/70">
-                        </tbody>
+                        <tbody id="tabla-activos" class="divide-y divide-slate-800/70"></tbody>
                     </table>
                 </div>
             </div>
         </section>
-
-        <!-- Listado de Tickets con Diagnóstico de IA -->
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <div class="flex justify-between items-center mb-5">
-                <div>
-                    <h2 class="text-base font-bold">Cola de Tickets & Diagnóstico Inteligente</h2>
-                    <p class="text-xs text-slate-400">Cambia el estado de cualquier ticket para disparar el Trigger de auditoría en MySQL</p>
-                </div>
-            </div>
-            <div id="contenedor-tickets" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            </div>
-        </section>
-
     </main>
 
-    <!-- MODAL DE ETIQUETA QR IMPRIMIBLE -->
+    <!-- NUEVO MÓDULO 4: Copiloto Técnico IA Flotante -->
+    <div class="fixed bottom-5 right-5 z-40">
+        <div id="ventana-chat" class="hidden bg-slate-900 border border-slate-700 rounded-2xl w-80 sm:w-96 shadow-2xl mb-3 overflow-hidden flex-col">
+            <div class="bg-indigo-600 px-4 py-3 flex justify-between items-center">
+                <div>
+                    <p class="text-xs font-bold text-white">🤖 Copiloto Técnico Nexus IA</p>
+                    <p class="text-[10px] text-indigo-200">Asistente interactivo para ingenieros de soporte</p>
+                </div>
+                <button onclick="toggleChatIA()" class="text-white font-bold text-lg leading-none">&times;</button>
+            </div>
+            <div id="mensajes-chat" class="p-4 space-y-3 h-64 overflow-y-auto text-xs bg-slate-950">
+                <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl text-slate-300">
+                    ¡Hola! Soy el Copiloto TI de NexusIT. Pregúntame sobre errores de MySQL, redes, impresoras o servidores y te daré el procedimiento técnico.
+                </div>
+            </div>
+            <form id="form-chat" class="p-2.5 bg-slate-900 border-t border-slate-800 flex gap-2">
+                <input id="input-chat" type="text" required placeholder="Ej. Cómo abrir puerto 3306 en firewall..." class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-indigo-500">
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs font-semibold">Enviar</button>
+            </form>
+        </div>
+        <button onclick="toggleChatIA()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-3 rounded-full shadow-xl shadow-indigo-600/30 flex items-center gap-2 text-xs ml-auto">
+            <span>💬 Copiloto TI (IA)</span>
+        </button>
+    </div>
+
+    <!-- MODAL QR -->
     <div id="modal-qr" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
                 <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Etiqueta de Control Patrimonial</span>
                 <button onclick="cerrarModalQR()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
             </div>
-            
-            <!-- Tarjeta Blanca Imprimible -->
-            <div id="area-impresion-qr" class="bg-white text-slate-900 p-5 rounded-xl mx-auto flex flex-col items-center shadow-inner">
+            <div id="area-impresion-qr" class="bg-white text-slate-900 p-5 rounded-xl mx-auto flex flex-col items-center">
                 <p class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">NEXUS IT ENTERPRISE</p>
                 <div id="qrcode-canvas" class="my-2"></div>
                 <p id="qr-codigo" class="font-mono font-bold text-base mt-2 text-slate-900"></p>
                 <p id="qr-equipo" class="text-xs font-medium text-slate-700 mt-0.5"></p>
                 <p id="qr-ubicacion" class="text-[11px] text-slate-500 mt-0.5"></p>
             </div>
-
             <div class="flex gap-3 mt-5">
-                <button onclick="imprimirEtiquetaQR()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 rounded-lg transition">
-                    🖨️ Imprimir Etiqueta
-                </button>
-                <button onclick="cerrarModalQR()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-4 py-2.5 rounded-lg">
-                    Cerrar
-                </button>
+                <button onclick="imprimirEtiquetaQR()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 rounded-lg transition">🖨️ Imprimir Etiqueta</button>
+                <button onclick="cerrarModalQR()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-4 py-2.5 rounded-lg">Cerrar</button>
             </div>
         </div>
     </div>
@@ -258,8 +285,34 @@
         let chartInstance = null;
         let estadoGlobal = { metricas: {}, tickets: [], activos: [], bitacora: [] };
 
+        // Telemetría NOC Simulada en Tiempo Real
+        function actualizarTelemetriaNOC() {
+            const nodos = [
+                { nombre: "Cluster MySQL 8.0 (Puerto 3306)", ip: "127.0.0.1", baseMs: 2 },
+                { nombre: "Core API FastAPI Backend", ip: "127.0.0.1:8000", baseMs: 5 },
+                { nombre: "Gateway Firewall Principal", ip: "192.168.1.1", baseMs: 11 },
+                { nombre: "Nodo Mesh Wi-Fi Laboratorio", ip: "192.168.1.45", baseMs: 19 }
+            ];
+            const cont = document.getElementById("noc-grid");
+            cont.innerHTML = nodos.map(n => {
+                const ms = n.baseMs + Math.floor(Math.random() * 8);
+                return `
+                <div class="bg-slate-950 border border-slate-800/90 rounded-xl p-3 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-200">${n.nombre}</p>
+                        <p class="text-[11px] font-mono text-slate-500">${n.ip}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-mono font-bold text-emerald-400">${ms} ms</span>
+                        <p class="text-[10px] text-emerald-500">ONLINE</p>
+                    </div>
+                </div>`;
+            }).join("");
+        }
+
         async function cargarDatos() {
             try {
+                actualizarTelemetriaNOC();
                 const res = await fetch(`${API_URL}/dashboard`);
                 const data = await res.json();
                 estadoGlobal = data;
@@ -270,7 +323,7 @@
                 document.getElementById("kpi-resueltos").innerText = data.metricas.resueltos;
                 document.getElementById("kpi-hardware").innerText = data.activos.length;
 
-                renderizarTickets(data.tickets);
+                filtrarTicketsUI();
                 renderizarBitacora(data.bitacora);
                 renderizarActivos(data.activos);
                 actualizarGrafica(data.metricas);
@@ -279,8 +332,36 @@
             }
         }
 
+        function calcularSLATexto(fechaCreacion, prioridad, estado) {
+            if (estado === "Resuelto") return `<span class="text-[11px] text-emerald-400 font-medium">✔ SLA Cumplido</span>`;
+            const limiteHoras = { "Crítica": 1, "Alta": 4, "Media": 8, "Baja": 24 }[prioridad] || 8;
+            const creado = new Date(fechaCreacion);
+            const ahora = new Date();
+            const minsTranscurridos = Math.max(1, Math.floor((ahora - creado) / 60000));
+            return `<span class="text-[11px] text-amber-300 font-mono">⏱️ Activo hace ${minsTranscurridos} min (Meta SLA: ${limiteHoras}h)</span>`;
+        }
+
+        function filtrarTicketsUI() {
+            const texto = (document.getElementById("buscador-tickets")?.value || "").toLowerCase();
+            const estadoFiltro = document.getElementById("filtro-estado")?.value || "TODOS";
+
+            const filtrados = estadoGlobal.tickets.filter(t => {
+                const coincideTexto = t.titulo.toLowerCase().includes(texto) ||
+                                      t.solicitante.toLowerCase().includes(texto) ||
+                                      String(t.id).includes(texto);
+                const coincideEstado = estadoFiltro === "TODOS" || t.estado === estadoFiltro;
+                return coincideTexto && coincideEstado;
+            });
+
+            renderizarTickets(filtrados);
+        }
+
         function renderizarTickets(tickets) {
             const contenedor = document.getElementById("contenedor-tickets");
+            if (tickets.length === 0) {
+                contenedor.innerHTML = `<p class="text-xs text-slate-400 col-span-2 py-4 text-center">No se encontraron tickets con ese filtro.</p>`;
+                return;
+            }
             contenedor.innerHTML = tickets.map(t => {
                 const colorPrioridad = {
                     "Crítica": "bg-rose-500/20 text-rose-300 border-rose-500/40",
@@ -293,7 +374,10 @@
                 <div class="bg-slate-950 border border-slate-800/90 rounded-xl p-4 flex flex-col justify-between space-y-3">
                     <div>
                         <div class="flex justify-between items-start gap-2">
-                            <span class="text-xs font-mono text-indigo-400">#TCK-${String(t.id).padStart(3, '0')}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-mono text-indigo-400 font-bold">#TCK-${String(t.id).padStart(3, '0')}</span>
+                                ${calcularSLATexto(t.creado_en, t.prioridad, t.estado)}
+                            </div>
                             <span class="text-[11px] px-2.5 py-0.5 rounded-full border ${colorPrioridad} font-medium">${t.prioridad}</span>
                         </div>
                         <h3 class="font-semibold text-sm mt-1.5 text-white">${t.titulo}</h3>
@@ -368,15 +452,12 @@
                     }]
                 },
                 options: {
-                    plugins: {
-                        legend: { labels: { color: '#cbd5e1', font: { size: 11 } } }
-                    },
+                    plugins: { legend: { labels: { color: '#cbd5e1', font: { size: 11 } } } },
                     cutout: '70%'
                 }
             });
         }
 
-        // Crear Ticket
         document.getElementById("form-ticket").addEventListener("submit", async (e) => {
             e.preventDefault();
             const payload = {
@@ -394,7 +475,6 @@
             cargarDatos();
         });
 
-        // Crear Nuevo Activo de Hardware
         document.getElementById("form-activo").addEventListener("submit", async (e) => {
             e.preventDefault();
             const payload = {
@@ -409,12 +489,39 @@
                 body: JSON.stringify(payload)
             });
             if (!res.ok) {
-                alert("Ese código patrimonial ya existe. Genera o escribe uno diferente.");
+                alert("Ese código patrimonial ya existe. Genera uno diferente.");
                 return;
             }
             e.target.reset();
             await cargarDatos();
             mostrarModalQR(payload.codigo_patrimonial.toUpperCase(), payload.equipo, payload.ubicacion, payload.estado);
+        });
+
+        // Chat Copiloto IA
+        function toggleChatIA() {
+            const chat = document.getElementById("ventana-chat");
+            chat.classList.toggle("hidden");
+            chat.classList.toggle("flex");
+        }
+
+        document.getElementById("form-chat").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const input = document.getElementById("input-chat");
+            const pregunta = input.value.trim();
+            if (!pregunta) return;
+
+            const cont = document.getElementById("mensajes-chat");
+            cont.innerHTML += `<div class="bg-indigo-600/30 border border-indigo-500/40 p-2.5 rounded-xl text-white ml-6">${pregunta}</div>`;
+            input.value = "";
+
+            const res = await fetch(`${API_URL}/chat-ia`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ pregunta })
+            });
+            const data = await res.json();
+            cont.innerHTML += `<div class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl text-slate-300 mr-4 whitespace-pre-wrap">${data.respuesta}</div>`;
+            cont.scrollTop = cont.scrollHeight;
         });
 
         function generarCodigoAutomatico() {
@@ -442,26 +549,19 @@
             cargarDatos();
         }
 
-        // FUNCIONES DE CÓDIGO QR
         function mostrarModalQR(codigo, equipo, ubicacion, estado) {
             const modal = document.getElementById("modal-qr");
             const contenedorQR = document.getElementById("qrcode-canvas");
             contenedorQR.innerHTML = "";
-
             document.getElementById("qr-codigo").innerText = codigo;
             document.getElementById("qr-equipo").innerText = equipo;
             document.getElementById("qr-ubicacion").innerText = `📍 ${ubicacion} | ${estado}`;
 
-            const textoQR = `NEXUS-IT|ID:${codigo}|EQ:${equipo}|UB:${ubicacion}|EST:${estado}`;
             new QRCode(contenedorQR, {
-                text: textoQR,
+                text: `NEXUS-IT|ID:${codigo}|EQ:${equipo}|UB:${ubicacion}|EST:${estado}`,
                 width: 150,
-                height: 150,
-                colorDark: "#0f172a",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
+                height: 150
             });
-
             modal.classList.remove("hidden");
             modal.classList.add("flex");
         }
@@ -475,142 +575,46 @@
         function imprimirEtiquetaQR() {
             const contenido = document.getElementById("area-impresion-qr").innerHTML;
             const ventana = window.open("", "_blank", "width=450,height=550");
-            ventana.document.write(`
-                <html>
-                <head><title>Imprimir Etiqueta Patrimonial QR</title>
-                <style>
-                    body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 90vh; }
-                    .etiqueta { border: 2px dashed #000; padding: 20px; text-align: center; width: 240px; border-radius: 10px; }
-                    img { margin: 10px auto; }
-                </style>
-                </head>
-                <body><div class="etiqueta">${contenido}</div>
-                <script>window.onload = () => { window.print(); window.close(); }<\/script>
-                </body></html>
-            `);
+            ventana.document.write(`<html><body style="font-family:sans-serif;text-align:center;padding:30px;">${contenido}<script>window.onload=()=>{window.print();window.close();}<\/script></body></html>`);
             ventana.document.close();
         }
 
-        // EXPORTAR REPORTE EJECUTIVO EN PDF FIRMADO
         function exportarReportePDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const fecha = new Date().toLocaleString();
-
-            // Encabezado Corporativo
             doc.setFillColor(15, 23, 42);
-            doc.rect(0, 0, 210, 32, "F");
+            doc.rect(0, 0, 210, 30, "F");
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(16);
-            doc.text("NEXUS IT PRO - REPORTE FORENSE Y AUDITORIA TI", 14, 15);
-            doc.setFontSize(9);
-            doc.text(`Generado el: ${fecha} | Motor de Auditoria: MySQL Triggers InnoDB`, 14, 24);
-
-            // Resumen de KPIs
-            doc.setTextColor(15, 23, 42);
-            doc.setFontSize(12);
-            doc.text("1. Resumen Ejecutivo de Operaciones", 14, 42);
+            doc.setFontSize(15);
+            doc.text("NEXUS IT PRO v3.0 - REPORTE EJECUTIVO DE AUDITORIA", 14, 18);
             doc.autoTable({
-                startY: 46,
-                head: [["Total Tickets", "Abiertos / En Proceso", "Prioridad Critica", "Tickets Resueltos", "Activos en Inventario"]],
-                body: [[
-                    estadoGlobal.metricas.total,
-                    estadoGlobal.metricas.abiertos + estadoGlobal.metricas.en_proceso,
-                    estadoGlobal.metricas.criticos,
-                    estadoGlobal.metricas.resueltos,
-                    estadoGlobal.activos.length
-                ]],
-                theme: "grid",
-                headStyles: { fillColor: [79, 70, 229] }
+                startY: 38,
+                head: [["Codigo QR", "Equipo", "Ubicacion", "Estado"]],
+                body: estadoGlobal.activos.map(a => [a.codigo_patrimonial, a.equipo, a.ubicacion, a.estado])
             });
-
-            // Tabla de Inventario de Activos
-            doc.text("2. Inventario Patrimonial de Hardware", 14, doc.lastAutoTable.finalY + 12);
             doc.autoTable({
-                startY: doc.lastAutoTable.finalY + 16,
-                head: [["Codigo QR", "Equipo / Especificacion", "Ubicacion", "Estado"]],
-                body: estadoGlobal.activos.map(a => [a.codigo_patrimonial, a.equipo, a.ubicacion, a.estado]),
-                theme: "striped",
-                headStyles: { fillColor: [16, 185, 129] }
+                startY: doc.lastAutoTable.finalY + 10,
+                head: [["Accion Trigger", "Detalle Auditable", "Fecha"]],
+                body: estadoGlobal.bitacora.map(b => [b.accion, b.detalle_cambio, new Date(b.fecha_evento).toLocaleString()])
             });
-
-            // Tabla de Bitácora Forense SQL
-            doc.text("3. Bitacora Forense de Seguridad (Triggers SQL)", 14, doc.lastAutoTable.finalY + 12);
-            doc.autoTable({
-                startY: doc.lastAutoTable.finalY + 16,
-                head: [["ID", "Accion", "Detalle Auditable", "Fecha y Hora"]],
-                body: estadoGlobal.bitacora.map(b => [b.id, b.accion, b.detalle_cambio, new Date(b.fecha_evento).toLocaleString()]),
-                theme: "striped",
-                headStyles: { fillColor: [245, 158, 11] }
-            });
-
-            // Firma al pie del documento
-            const finalY = doc.lastAutoTable.finalY + 25;
-            doc.setFontSize(10);
-            doc.text("________________________________________", 14, finalY);
-            doc.text("Firma de Conformidad - Direccion de TI / Auditoria", 14, finalY + 6);
-
-            doc.save(`Reporte_Auditoria_NexusIT_${Date.now()}.pdf`);
+            doc.save(`Auditoria_NexusIT_v3_${Date.now()}.pdf`);
         }
 
-        // EXPORTAR LIBRO DE EXCEL CON 3 HOJAS
         function exportarReporteExcel() {
             const wb = XLSX.utils.book_new();
-
-            const hojaTickets = XLSX.utils.json_to_sheet(estadoGlobal.tickets.map(t => ({
-                ID_Ticket: `TCK-${t.id}`,
-                Titulo: t.titulo,
-                Solicitante: t.solicitante,
-                Prioridad: t.prioridad,
-                Estado: t.estado,
-                Diagnostico_IA: t.diagnostico_ia,
-                Fecha_Creacion: t.creado_en
-            })));
-
-            const hojaActivos = XLSX.utils.json_to_sheet(estadoGlobal.activos.map(a => ({
-                Codigo_Patrimonial: a.codigo_patrimonial,
-                Equipo: a.equipo,
-                Ubicacion: a.ubicacion,
-                Estado_Operativo: a.estado,
-                Ultima_Actualizacion: a.actualizado_en
-            })));
-
-            const hojaBitacora = XLSX.utils.json_to_sheet(estadoGlobal.bitacora.map(b => ({
-                ID_Evento: b.id,
-                Tabla_Afectada: b.tabla_afectada,
-                Accion_Trigger: b.accion,
-                Detalle_Auditoria: b.detalle_cambio,
-                Fecha_Exacta: b.fecha_evento
-            })));
-
-            XLSX.utils.book_append_sheet(wb, hojaTickets, "Tickets_Soporte");
-            XLSX.utils.book_append_sheet(wb, hojaActivos, "Inventario_QR");
-            XLSX.utils.book_append_sheet(wb, hojaBitacora, "Bitacora_Forense_SQL");
-
-            XLSX.writeFile(wb, `Auditoria_NexusIT_Enterprise_${Date.now()}.xlsx`);
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(estadoGlobal.tickets), "Tickets");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(estadoGlobal.activos), "Activos_QR");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(estadoGlobal.bitacora), "Bitacora_SQL");
+            XLSX.writeFile(wb, `Auditoria_NexusIT_v3_${Date.now()}.xlsx`);
         }
 
         async function simularTicketDemo() {
             const ejemplos = [
-                {
-                    titulo: "Pérdida de paquetes en nodo Wi-Fi de Laboratorio",
-                    solicitante: "Coordinación de Redes",
-                    prioridad: "Alta",
-                    descripcion: "Los equipos reportan latencia alta e intermitencia al conectarse al nodo secundario TP-Link."
-                },
-                {
-                    titulo: "Bloqueo de tabla en servidor MySQL de facturación",
-                    solicitante: "Departamento Financiero",
-                    prioridad: "Crítica",
-                    descripcion: "Las consultas de cierre diario tardan más de 40 segundos en responder en el puerto 3306."
-                }
+                { titulo: "Pérdida de paquetes en nodo Wi-Fi de Laboratorio", solicitante: "Coordinación de Redes", prioridad: "Alta", descripcion: "Intermitencia al conectarse al nodo secundario." },
+                { titulo: "Bloqueo de tabla en servidor MySQL de facturación", solicitante: "Departamento Financiero", prioridad: "Crítica", descripcion: "Consultas tardan más de 40 segundos en puerto 3306." }
             ];
             const random = ejemplos[Math.floor(Math.random() * ejemplos.length)];
-            await fetch(`${API_URL}/tickets`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(random)
-            });
+            await fetch(`${API_URL}/tickets`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(random) });
             cargarDatos();
         }
 

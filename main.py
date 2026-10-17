@@ -159,3 +159,11 @@ def actualizar_estado_activo(activo_id: int, datos: CambioEstado):
     cursor.close()
     conn.close()
     return {"mensaje": "Estado de activo actualizado y auditado"}
+
+class ConsultaChat(BaseModel):
+    pregunta: str
+
+@app.post("/api/chat-ia")
+def consultar_copiloto_ti(datos: ConsultaChat):
+    respuesta = generar_diagnostico_inteligente("Consulta Técnica Directa", datos.pregunta)
+    return {"respuesta": respuesta}
