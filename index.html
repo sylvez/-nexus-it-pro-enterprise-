@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusIT Pro | Enterprise ITSM & AI Auditing</title>
+    <title>NexusIT Pro 2.0 | Enterprise ITSM, QR Assets & AI Auditing</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Librerías Empresariales para PDF, Excel y Códigos QR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -14,21 +19,27 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen">
 
     <!-- Barra Superior -->
-    <header class="border-b border-slate-800 bg-slate-900/70 backdrop-blur sticky top-0 z-30">
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-xl shadow-lg shadow-indigo-500/30">N</div>
                 <div>
-                    <h1 class="font-bold text-lg tracking-tight">NexusIT Pro <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full ml-2">AI + SQL Triggers</span></h1>
-                    <p class="text-xs text-slate-400">Sistema Empresarial de Soporte Técnico, Inventario y Auditoría Forense</p>
+                    <h1 class="font-bold text-lg tracking-tight">NexusIT Pro <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full ml-2">v2.0 Enterprise</span></h1>
+                    <p class="text-xs text-slate-400">Soporte IA, Control Patrimonial QR y Auditoría Forense SQL</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="simularTicketDemo()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition shadow-lg shadow-emerald-600/20">
-                    ⚡ Simular Incidente en 1 Clic (Modo Demo)
+            <div class="flex flex-wrap items-center gap-2.5">
+                <button onclick="exportarReportePDF()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold px-3.5 py-2.5 rounded-lg transition shadow-lg shadow-rose-600/20">
+                    📄 Exportar PDF Auditoría
+                </button>
+                <button onclick="exportarReporteExcel()" class="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-3.5 py-2.5 rounded-lg transition shadow-lg shadow-teal-600/20">
+                    📊 Exportar Excel (3 Hojas)
+                </button>
+                <button onclick="simularTicketDemo()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2.5 rounded-lg transition shadow-lg shadow-emerald-600/20">
+                    ⚡ Simular Incidente
                 </button>
                 <button onclick="cargarDatos()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3 py-2.5 rounded-lg border border-slate-700 transition">
-                    🔄 Sincronizar
+                    🔄
                 </button>
             </div>
         </div>
@@ -37,30 +48,35 @@
     <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
 
         <!-- Tarjetas de KPIs -->
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
                 <p class="text-xs text-slate-400 uppercase font-semibold">Total Tickets</p>
                 <p id="kpi-total" class="text-3xl font-bold mt-2 text-white">0</p>
-                <span class="text-xs text-slate-500">Registrados en base de datos</span>
+                <span class="text-xs text-slate-500">En base de datos</span>
             </div>
             <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                <p class="text-xs text-amber-400 uppercase font-semibold">Pendientes / En Proceso</p>
+                <p class="text-xs text-amber-400 uppercase font-semibold">Pendientes</p>
                 <p id="kpi-activos" class="text-3xl font-bold mt-2 text-amber-400">0</p>
-                <span class="text-xs text-slate-500">Atención requerida</span>
+                <span class="text-xs text-slate-500">En cola técnica</span>
             </div>
             <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
                 <p class="text-xs text-rose-400 uppercase font-semibold">Prioridad Crítica</p>
                 <p id="kpi-criticos" class="text-3xl font-bold mt-2 text-rose-500">0</p>
-                <span class="text-xs text-slate-500">SLA de respuesta inmediata</span>
+                <span class="text-xs text-slate-500">SLA inmediato</span>
             </div>
             <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                <p class="text-xs text-emerald-400 uppercase font-semibold">Tickets Resueltos</p>
+                <p class="text-xs text-emerald-400 uppercase font-semibold">Resueltos</p>
                 <p id="kpi-resueltos" class="text-3xl font-bold mt-2 text-emerald-400">0</p>
-                <span class="text-xs text-slate-500">Auditados en bitácora</span>
+                <span class="text-xs text-slate-500">Auditados por Trigger</span>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <p class="text-xs text-indigo-400 uppercase font-semibold">Activos Hardware</p>
+                <p id="kpi-hardware" class="text-3xl font-bold mt-2 text-indigo-400">0</p>
+                <span class="text-xs text-slate-500">Con código QR</span>
             </div>
         </section>
 
-        <!-- Fila Principal: Formulario + Gráfica + Bitácora en Vivo -->
+        <!-- Fila Principal: Formulario Ticket + Gráfica + Bitácora en Vivo -->
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             <!-- Crear Ticket con IA -->
@@ -112,7 +128,7 @@
                 </div>
             </div>
 
-            <!-- Bitácora Forense (Alimentada por Triggers de MySQL) -->
+            <!-- Bitácora Forense -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col">
                 <div class="flex justify-between items-center mb-3">
                     <div>
@@ -122,6 +138,75 @@
                     <span class="text-[11px] bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded">Seguridad Activa</span>
                 </div>
                 <div id="lista-bitacora" class="space-y-2.5 overflow-y-auto max-h-72 pr-1 text-xs">
+                </div>
+            </div>
+        </section>
+
+        <!-- NUEVA SECCIÓN: Alta de Equipos + Tabla de Inventario con Etiquetas QR -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Formulario para Registrar Equipos y Generar QR -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-1">
+                    <h2 class="text-base font-bold">Registrar Nuevo Equipo TI</h2>
+                    <span class="text-[11px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">Auto-QR</span>
+                </div>
+                <p class="text-xs text-slate-400 mb-4">Agrega hardware al inventario y genera su etiqueta QR patrimonial.</p>
+                
+                <form id="form-activo" class="space-y-3.5">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs text-slate-300">Código Patrimonial</label>
+                            <button type="button" onclick="generarCodigoAutomatico()" class="text-[11px] text-indigo-400 hover:underline">⚡ Generar código</button>
+                        </div>
+                        <input id="act-codigo" type="text" required placeholder="Ej. WKS-GT-109" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm font-mono uppercase focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-300 block mb-1">Equipo / Marca y Modelo</label>
+                        <input id="act-equipo" type="text" required placeholder="Ej. Laptop Dell Latitude 5440 Core i7" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-slate-300 block mb-1">Ubicación / Área</label>
+                            <input id="act-ubicacion" type="text" required placeholder="Ej. Laboratorio 3" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-300 block mb-1">Estado Inicial</label>
+                            <select id="act-estado" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                                <option value="Operativo" selected>Operativo</option>
+                                <option value="En Reparación">En Reparación</option>
+                                <option value="De Baja">De Baja</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-sm transition shadow-lg shadow-emerald-600/20">
+                        ➕ Guardar Activo y Crear QR
+                    </button>
+                </form>
+            </div>
+
+            <!-- Tabla de Inventario de Activos de TI -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 lg:col-span-2">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-base font-bold">Inventario de Activos de Hardware & Etiquetas QR</h2>
+                        <p class="text-xs text-slate-400">Haz clic en "🔳 Ver QR" para mostrar e imprimir la etiqueta patrimonial del equipo</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-xs text-slate-400 uppercase">
+                                <th class="py-3 px-3">Código</th>
+                                <th class="py-3 px-3">Equipo / Especificación</th>
+                                <th class="py-3 px-3">Ubicación</th>
+                                <th class="py-3 px-3">Estado Operativo</th>
+                                <th class="py-3 px-3 text-right">Etiqueta QR</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-activos" class="divide-y divide-slate-800/70">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -138,41 +223,52 @@
             </div>
         </section>
 
-        <!-- Tabla de Inventario de Activos de TI -->
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <h2 class="text-base font-bold mb-1">Inventario de Activos de Hardware Vinculados</h2>
-            <p class="text-xs text-slate-400 mb-4">Control patrimonial de equipos de la organización</p>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-sm">
-                    <thead>
-                        <tr class="border-b border-slate-800 text-xs text-slate-400 uppercase">
-                            <th class="py-3 px-4">Código</th>
-                            <th class="py-3 px-4">Equipo / Especificación</th>
-                            <th class="py-3 px-4">Ubicación</th>
-                            <th class="py-3 px-4">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-activos" class="divide-y divide-slate-800/70">
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
     </main>
+
+    <!-- MODAL DE ETIQUETA QR IMPRIMIBLE -->
+    <div id="modal-qr" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Etiqueta de Control Patrimonial</span>
+                <button onclick="cerrarModalQR()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+            </div>
+            
+            <!-- Tarjeta Blanca Imprimible -->
+            <div id="area-impresion-qr" class="bg-white text-slate-900 p-5 rounded-xl mx-auto flex flex-col items-center shadow-inner">
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2">NEXUS IT ENTERPRISE</p>
+                <div id="qrcode-canvas" class="my-2"></div>
+                <p id="qr-codigo" class="font-mono font-bold text-base mt-2 text-slate-900"></p>
+                <p id="qr-equipo" class="text-xs font-medium text-slate-700 mt-0.5"></p>
+                <p id="qr-ubicacion" class="text-[11px] text-slate-500 mt-0.5"></p>
+            </div>
+
+            <div class="flex gap-3 mt-5">
+                <button onclick="imprimirEtiquetaQR()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 rounded-lg transition">
+                    🖨️ Imprimir Etiqueta
+                </button>
+                <button onclick="cerrarModalQR()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-4 py-2.5 rounded-lg">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const API_URL = "http://127.0.0.1:8000/api";
         let chartInstance = null;
+        let estadoGlobal = { metricas: {}, tickets: [], activos: [], bitacora: [] };
 
         async function cargarDatos() {
             try {
                 const res = await fetch(`${API_URL}/dashboard`);
                 const data = await res.json();
+                estadoGlobal = data;
 
                 document.getElementById("kpi-total").innerText = data.metricas.total;
                 document.getElementById("kpi-activos").innerText = data.metricas.abiertos + data.metricas.en_proceso;
                 document.getElementById("kpi-criticos").innerText = data.metricas.criticos;
                 document.getElementById("kpi-resueltos").innerText = data.metricas.resueltos;
+                document.getElementById("kpi-hardware").innerText = data.activos.length;
 
                 renderizarTickets(data.tickets);
                 renderizarBitacora(data.bitacora);
@@ -238,13 +334,21 @@
             const tbody = document.getElementById("tabla-activos");
             tbody.innerHTML = activos.map(a => `
                 <tr class="hover:bg-slate-900/40">
-                    <td class="py-3 px-4 font-mono text-xs text-indigo-400">${a.codigo_patrimonial}</td>
-                    <td class="py-3 px-4 font-medium">${a.equipo}</td>
-                    <td class="py-3 px-4 text-slate-400">${a.ubicacion}</td>
-                    <td class="py-3 px-4">
-                        <span class="text-xs px-2.5 py-1 rounded-full ${a.estado === 'Operativo' ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'}">
-                            ${a.estado}
-                        </span>
+                    <td class="py-3 px-3 font-mono text-xs text-indigo-400 font-semibold">${a.codigo_patrimonial}</td>
+                    <td class="py-3 px-3 font-medium">${a.equipo}</td>
+                    <td class="py-3 px-3 text-slate-400 text-xs">${a.ubicacion}</td>
+                    <td class="py-3 px-3">
+                        <select onchange="cambiarEstadoActivo(${a.id}, this.value)" class="bg-slate-950 border border-slate-700 text-xs rounded px-2 py-1">
+                            <option value="Operativo" ${a.estado === 'Operativo' ? 'selected' : ''}>🟢 Operativo</option>
+                            <option value="En Reparación" ${a.estado === 'En Reparación' ? 'selected' : ''}>🟡 En Reparación</option>
+                            <option value="De Baja" ${a.estado === 'De Baja' ? 'selected' : ''}>🔴 De Baja</option>
+                        </select>
+                    </td>
+                    <td class="py-3 px-3 text-right">
+                        <button onclick="mostrarModalQR('${a.codigo_patrimonial}', '${a.equipo.replace(/'/g, "")}', '${a.ubicacion.replace(/'/g, "")}', '${a.estado}')" 
+                            class="bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/30 text-xs px-2.5 py-1 rounded-lg transition font-medium">
+                            🔳 Ver QR
+                        </button>
                     </td>
                 </tr>
             `).join("");
@@ -272,6 +376,7 @@
             });
         }
 
+        // Crear Ticket
         document.getElementById("form-ticket").addEventListener("submit", async (e) => {
             e.preventDefault();
             const payload = {
@@ -289,6 +394,36 @@
             cargarDatos();
         });
 
+        // Crear Nuevo Activo de Hardware
+        document.getElementById("form-activo").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const payload = {
+                codigo_patrimonial: document.getElementById("act-codigo").value,
+                equipo: document.getElementById("act-equipo").value,
+                ubicacion: document.getElementById("act-ubicacion").value,
+                estado: document.getElementById("act-estado").value
+            };
+            const res = await fetch(`${API_URL}/activos`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                alert("Ese código patrimonial ya existe. Genera o escribe uno diferente.");
+                return;
+            }
+            e.target.reset();
+            await cargarDatos();
+            mostrarModalQR(payload.codigo_patrimonial.toUpperCase(), payload.equipo, payload.ubicacion, payload.estado);
+        });
+
+        function generarCodigoAutomatico() {
+            const prefijos = ["WKS", "SRV", "NET", "PRT", "MON"];
+            const pref = prefijos[Math.floor(Math.random() * prefijos.length)];
+            const num = Math.floor(100 + Math.random() * 900);
+            document.getElementById("act-codigo").value = `${pref}-GT-${num}`;
+        }
+
         async function cambiarEstado(id, nuevoEstado) {
             await fetch(`${API_URL}/tickets/${id}/estado`, {
                 method: "PUT",
@@ -296,6 +431,163 @@
                 body: JSON.stringify({ estado: nuevoEstado })
             });
             cargarDatos();
+        }
+
+        async function cambiarEstadoActivo(id, nuevoEstado) {
+            await fetch(`${API_URL}/activos/${id}/estado`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ estado: nuevoEstado })
+            });
+            cargarDatos();
+        }
+
+        // FUNCIONES DE CÓDIGO QR
+        function mostrarModalQR(codigo, equipo, ubicacion, estado) {
+            const modal = document.getElementById("modal-qr");
+            const contenedorQR = document.getElementById("qrcode-canvas");
+            contenedorQR.innerHTML = "";
+
+            document.getElementById("qr-codigo").innerText = codigo;
+            document.getElementById("qr-equipo").innerText = equipo;
+            document.getElementById("qr-ubicacion").innerText = `📍 ${ubicacion} | ${estado}`;
+
+            const textoQR = `NEXUS-IT|ID:${codigo}|EQ:${equipo}|UB:${ubicacion}|EST:${estado}`;
+            new QRCode(contenedorQR, {
+                text: textoQR,
+                width: 150,
+                height: 150,
+                colorDark: "#0f172a",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function cerrarModalQR() {
+            const modal = document.getElementById("modal-qr");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        function imprimirEtiquetaQR() {
+            const contenido = document.getElementById("area-impresion-qr").innerHTML;
+            const ventana = window.open("", "_blank", "width=450,height=550");
+            ventana.document.write(`
+                <html>
+                <head><title>Imprimir Etiqueta Patrimonial QR</title>
+                <style>
+                    body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 90vh; }
+                    .etiqueta { border: 2px dashed #000; padding: 20px; text-align: center; width: 240px; border-radius: 10px; }
+                    img { margin: 10px auto; }
+                </style>
+                </head>
+                <body><div class="etiqueta">${contenido}</div>
+                <script>window.onload = () => { window.print(); window.close(); }<\/script>
+                </body></html>
+            `);
+            ventana.document.close();
+        }
+
+        // EXPORTAR REPORTE EJECUTIVO EN PDF FIRMADO
+        function exportarReportePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const fecha = new Date().toLocaleString();
+
+            // Encabezado Corporativo
+            doc.setFillColor(15, 23, 42);
+            doc.rect(0, 0, 210, 32, "F");
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(16);
+            doc.text("NEXUS IT PRO - REPORTE FORENSE Y AUDITORIA TI", 14, 15);
+            doc.setFontSize(9);
+            doc.text(`Generado el: ${fecha} | Motor de Auditoria: MySQL Triggers InnoDB`, 14, 24);
+
+            // Resumen de KPIs
+            doc.setTextColor(15, 23, 42);
+            doc.setFontSize(12);
+            doc.text("1. Resumen Ejecutivo de Operaciones", 14, 42);
+            doc.autoTable({
+                startY: 46,
+                head: [["Total Tickets", "Abiertos / En Proceso", "Prioridad Critica", "Tickets Resueltos", "Activos en Inventario"]],
+                body: [[
+                    estadoGlobal.metricas.total,
+                    estadoGlobal.metricas.abiertos + estadoGlobal.metricas.en_proceso,
+                    estadoGlobal.metricas.criticos,
+                    estadoGlobal.metricas.resueltos,
+                    estadoGlobal.activos.length
+                ]],
+                theme: "grid",
+                headStyles: { fillColor: [79, 70, 229] }
+            });
+
+            // Tabla de Inventario de Activos
+            doc.text("2. Inventario Patrimonial de Hardware", 14, doc.lastAutoTable.finalY + 12);
+            doc.autoTable({
+                startY: doc.lastAutoTable.finalY + 16,
+                head: [["Codigo QR", "Equipo / Especificacion", "Ubicacion", "Estado"]],
+                body: estadoGlobal.activos.map(a => [a.codigo_patrimonial, a.equipo, a.ubicacion, a.estado]),
+                theme: "striped",
+                headStyles: { fillColor: [16, 185, 129] }
+            });
+
+            // Tabla de Bitácora Forense SQL
+            doc.text("3. Bitacora Forense de Seguridad (Triggers SQL)", 14, doc.lastAutoTable.finalY + 12);
+            doc.autoTable({
+                startY: doc.lastAutoTable.finalY + 16,
+                head: [["ID", "Accion", "Detalle Auditable", "Fecha y Hora"]],
+                body: estadoGlobal.bitacora.map(b => [b.id, b.accion, b.detalle_cambio, new Date(b.fecha_evento).toLocaleString()]),
+                theme: "striped",
+                headStyles: { fillColor: [245, 158, 11] }
+            });
+
+            // Firma al pie del documento
+            const finalY = doc.lastAutoTable.finalY + 25;
+            doc.setFontSize(10);
+            doc.text("________________________________________", 14, finalY);
+            doc.text("Firma de Conformidad - Direccion de TI / Auditoria", 14, finalY + 6);
+
+            doc.save(`Reporte_Auditoria_NexusIT_${Date.now()}.pdf`);
+        }
+
+        // EXPORTAR LIBRO DE EXCEL CON 3 HOJAS
+        function exportarReporteExcel() {
+            const wb = XLSX.utils.book_new();
+
+            const hojaTickets = XLSX.utils.json_to_sheet(estadoGlobal.tickets.map(t => ({
+                ID_Ticket: `TCK-${t.id}`,
+                Titulo: t.titulo,
+                Solicitante: t.solicitante,
+                Prioridad: t.prioridad,
+                Estado: t.estado,
+                Diagnostico_IA: t.diagnostico_ia,
+                Fecha_Creacion: t.creado_en
+            })));
+
+            const hojaActivos = XLSX.utils.json_to_sheet(estadoGlobal.activos.map(a => ({
+                Codigo_Patrimonial: a.codigo_patrimonial,
+                Equipo: a.equipo,
+                Ubicacion: a.ubicacion,
+                Estado_Operativo: a.estado,
+                Ultima_Actualizacion: a.actualizado_en
+            })));
+
+            const hojaBitacora = XLSX.utils.json_to_sheet(estadoGlobal.bitacora.map(b => ({
+                ID_Evento: b.id,
+                Tabla_Afectada: b.tabla_afectada,
+                Accion_Trigger: b.accion,
+                Detalle_Auditoria: b.detalle_cambio,
+                Fecha_Exacta: b.fecha_evento
+            })));
+
+            XLSX.utils.book_append_sheet(wb, hojaTickets, "Tickets_Soporte");
+            XLSX.utils.book_append_sheet(wb, hojaActivos, "Inventario_QR");
+            XLSX.utils.book_append_sheet(wb, hojaBitacora, "Bitacora_Forense_SQL");
+
+            XLSX.writeFile(wb, `Auditoria_NexusIT_Enterprise_${Date.now()}.xlsx`);
         }
 
         async function simularTicketDemo() {
@@ -325,4 +617,4 @@
         cargarDatos();
     </script>
 </body>
-</html>pip install fastapi uvicorn mysql-connector-python pydantic google-genai
+</html>

@@ -67,3 +67,26 @@ INSERT INTO tickets (titulo, descripcion, solicitante, prioridad, estado, diagno
 ('Caída de enlace en base de datos local', 'El servidor rechaza conexiones desde las terminales del laboratorio 2 por error de puerto 3306.', 'Carlos Méndez (Docente)', 'Crítica', 'En Proceso', '1. Verificar servicio MySQL activo.\n2. Revisar regla de Firewall en puerto TCP 3306.\n3. Confirmar permisos de host remoto en usuario root/app.'),
 ('Impresora de administración no imprime en red', 'La Canon G2070 aparece desconectada aunque está encendida y conectada al Wi-Fi.', 'Ana Lucía Gómez (Contabilidad)', 'Media', 'Abierto', '1. Imprimir hoja de configuración de red para verificar IP actual.\n2. Asignar IP estática por MAC en el router principal.\n3. Reiniciar cola de impresión (Spooler) en Windows.'),
 ('Solicitud de instalación de entorno Docker', 'Se requiere configurar Docker Desktop y WSL2 en el equipo de coordinación.', 'Ing. Roberto Morales', 'Baja', 'Resuelto', '1. Habilitar virtualización en BIOS.\n2. Ejecutar wsl --install en PowerShell como Administrador.\n3. Instalar motor Docker y validar permisos de grupo.');
+
+
+DELIMITER //
+
+CREATE TRIGGER trg_activo_insert
+AFTER INSERT ON activos_ti
+FOR EACH ROW
+BEGIN
+    INSERT INTO bitacora_auditoria (tabla_afectada, registro_id, accion, detalle_cambio)
+    VALUES ('activos_ti', NEW.id, 'ALTA_ACTIVO', CONCAT('Equipo registrado: ', NEW.codigo_patrimonial, ' (', NEW.equipo, ') en ', NEW.ubicacion));
+END //
+
+CREATE TRIGGER trg_activo_update
+AFTER UPDATE ON activos_ti
+FOR EACH ROW
+BEGIN
+    IF OLD.estado != NEW.estado THEN
+        INSERT INTO bitacora_auditoria (tabla_afectada, registro_id, accion, detalle_cambio)
+        VALUES ('activos_ti', NEW.id, 'ESTADO_ACTIVO', CONCAT('Equipo ', NEW.codigo_patrimonial, ' pasó de [', OLD.estado, '] a [', NEW.estado, ']'));
+    END IF;
+END //
+
+DELIMITER ;

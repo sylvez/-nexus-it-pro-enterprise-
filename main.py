@@ -1,19 +1,17 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import mysql.connector
 
-# Intentar cargar el SDK oficial de Gemini si está configurado
 try:
     from google import genai
     GEMINI_AVAILABLE = True
 except ImportError:
     GEMINI_AVAILABLE = False
 
-app = FastAPI(title="NexusIT Pro Enterprise API", version="1.0.0")
+app = FastAPI(title="NexusIT Pro Enterprise API", version="2.0.0")
 
-# Permitir que el Frontend se conecte sin bloqueos de CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,8 +22,8 @@ app.add_middleware(
 # Configuración de tu Base de Datos MySQL local
 DB_CONFIG = {
     "host": "localhost",
-    "user": "root",        # Cambia si tu usuario de MySQL es distinto
-    "password": "202502241",
+    "user": "root",
+    "password": "202502241",  # <--- COLOCA AQUÍ TU CONTRASEÑA DE MYSQL
     "database": "nexus_it_enterprise"
 }
 
@@ -41,8 +39,13 @@ class NuevoTicket(BaseModel):
 class CambioEstado(BaseModel):
     estado: str
 
+class NuevoActivo(BaseModel):
+    codigo_patrimonial: str
+    equipo: str
+    ubicacion: str
+    estado: str = "Operativo"
+
 def generar_diagnostico_inteligente(titulo: str, descripcion: str) -> str:
-    """Usa Gemini API si hay clave configurada, o un sistema experto de respaldo."""
     api_key = os.getenv("GEMINI_API_KEY", "")
     if GEMINI_AVAILABLE and api_key:
         try:
@@ -59,7 +62,6 @@ def generar_diagnostico_inteligente(titulo: str, descripcion: str) -> str:
         except Exception:
             pass
 
-    # Motor de diagnóstico automático de respaldo (Funciona sin internet / sin API Key)
     texto = (titulo + " " + descripcion).lower()
     if "red" in texto or "wifi" in texto or "internet" in texto or "ip" in texto:
         return "1. Verificar enlace físico/VLAN y hacer ping al Gateway.\n2. Renovar concesión DHCP (ipconfig /release & /renew) y limpiar caché DNS.\n3. Revisar estado de los nodos Mesh y saturación de canal."
@@ -78,10 +80,10 @@ def obtener_dashboard():
     cursor.execute("SELECT * FROM tickets ORDER BY id DESC")
     tickets = cursor.fetchall()
 
-    cursor.execute("SELECT * FROM activos_ti ORDER BY id ASC")
+    cursor.execute("SELECT * FROM activos_ti ORDER BY id DESC")
     activos = cursor.fetchall()
 
-    cursor.execute("SELECT * FROM bitacora_auditoria ORDER BY id DESC LIMIT 12")
+    cursor.execute("SELECT * FROM bitacora_auditoria ORDER BY id DESC LIMIT 25")
     bitacora = cursor.fetchall()
 
     cursor.close()
@@ -92,7 +94,8 @@ def obtener_dashboard():
         "abiertos": sum(1 for t in tickets if t["estado"] == "Abierto"),
         "en_proceso": sum(1 for t in tickets if t["estado"] == "En Proceso"),
         "resueltos": sum(1 for t in tickets if t["estado"] == "Resuelto"),
-        "criticos": sum(1 for t in tickets if t["prioridad"] == "Crítica")
+        "criticos": sum(1 for t in tickets if t["prioridad"] == "Crítica"),
+        "total_activos": len(activos)
     }
 
     return {
@@ -127,3 +130,32 @@ def actualizar_estado_ticket(ticket_id: int, datos: CambioEstado):
     cursor.close()
     conn.close()
     return {"mensaje": "Estado actualizado y auditado por Trigger en MySQL"}
+
+@app.post("/api/activos")
+def crear_activo(activo: NuevoActivo):
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        sql = """
+            INSERT INTO activos_ti (codigo_patrimonial, equipo, ubicacion, estado)
+            VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(sql, (activo.codigo_patrimonial.upper().strip(), activo.equipo, activo.ubicacion, activo.estado))
+        conn.commit()
+        nuevo_id = cursor.lastrowid
+        return {"mensaje": "Activo registrado con éxito", "id": nuevo_id}
+    except mysql.connector.Error as err:
+        raise HTTPException(status_code=400, detail=f"Error al registrar activo: {err.msg}")
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.put("/api/activos/{activo_id}/estado")
+def actualizar_estado_activo(activo_id: int, datos: CambioEstado):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE activos_ti SET estado = %s WHERE id = %s", (datos.estado, activo_id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"mensaje": "Estado de activo actualizado y auditado"}
