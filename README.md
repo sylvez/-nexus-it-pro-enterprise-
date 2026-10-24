@@ -1,21 +1,19 @@
-# 🛡️ NexusIT Pro | Enterprise ITSM, Asset Management & AI Auditing
+# 🛡️ NexusIT Pro v3.0 — Sistema Empresarial ITSM, Helpdesk NOC & Diagnóstico con IA (Gemini API)
 
-Sistema empresarial Full-Stack para la gestión de tickets de soporte técnico (Helpdesk), control de inventario de activos de hardware y auditoría forense automatizada a nivel de motor de base de datos.
+**Propietario y Desarrollador Principal:** Kevin Alejandro Vásquez Ramos
 
-## 🚀 Características de Nivel Empresarial
-* **Diagnóstico Técnico con IA (Gemini API + Fallback Engine):** Genera planes de resolución de 3 pasos al instante según la descripción del incidente.
-* **Auditoría Forense Inmutable (MySQL Triggers):** Cada creación o cambio de estado en los tickets dispara automáticamente un `TRIGGER` en MySQL (`AFTER INSERT` / `AFTER UPDATE`) que registra el cambio en una tabla de bitácora sin depender del código del backend.
-* **Dashboard Operativo en Tiempo Real:** Visualización de KPIs, métricas de SLA y gráficas dinámicas con Chart.js y Tailwind CSS en modo oscuro.
-* **Modo Simulación (1-Click Demo):** Permite a reclutadores y clientes probar el flujo completo en un clic.
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![Gemini AI](https://img.shields.io/badge/Google_Gemini_API-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)
 
-## 🛠️ Stack Tecnológico
-* **Backend:** Python 3.12, FastAPI, Uvicorn, Pydantic
-* **Base de Datos:** MySQL 8.0 (InnoDB, Triggers, Foreign Keys)
-* **Inteligencia Artificial:** Google Gemini 2.5 Flash SDK
-* **Frontend:** HTML5, JavaScript (ES6+), Tailwind CSS, Chart.js
+Plataforma corporativa de Gestión de Servicios de TI (**ITSM / Helpdesk**), monitoreo de infraestructura de red (**NOC**) y auditoría automatizada mediante **Triggers en MySQL** e integración con Inteligencia Artificial (**Google Gemini API**).
 
-## ⚙️ Instalación Rápida
-1. Ejecutar el script `database.sql` en MySQL Server.
-2. Instalar dependencias:
-   ```bash
-   pip install -r requirements.txt
+## 🚀 Características Principales
+- **Gestión de Tickets ITSM & Acuerdos de Nivel de Servicio (SLA):** Clasificación por criticidad, asignación de técnicos y control de tiempos de respuesta.
+- **Asistente de Diagnóstico Técnico con IA:** Integración RESTful con **Gemini API** para sugerir soluciones de soporte nivel 1, 2 y 3 en tiempo real.
+- **Auditoría Forense en Base de Datos:** Triggers transaccionales en MySQL que registran cada cambio de estado en bitácoras inmutables.
+- **Monitor NOC de Activos y Red:** Supervisión visual del estado de servidores, routers y estaciones de trabajo.
+
+---
+**Propiedad Intelectual y Desarrollo:** Kevin Alejandro Vásquez Ramos — *Ingeniería en Ciencias y Sistemas (USAC)*
